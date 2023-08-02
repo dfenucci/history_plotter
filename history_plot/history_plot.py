@@ -177,8 +177,7 @@ class HistoryPlotter(object):
                             bbox_to_anchor=(self.__beginning-self.__interval/2., self.__y_counter, self.__end-self.__beginning+self.__interval, 0),
                             bbox_transform=self.__ax.transData)
       self.__ax.add_artist(leg)
-      plt.draw()
-
+      self.__ax.figure.canvas.draw()
       leg_height = leg.get_frame().get_bbox().transformed(self.__ax.transData.inverted()).height
 
       # !! DEBUG !!
