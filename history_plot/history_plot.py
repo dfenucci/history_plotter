@@ -1,3 +1,6 @@
+from collections import namedtuple
+import os
+import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -50,7 +53,8 @@ class HistoryPlotter(object):
     self.__ax.set_ylim(self.__y_counter-2, 1)
     self.__fig.set_figheight(abs(self.__y_counter-2)/9.5)
 
-  def __init__(self, title, beginning, end=0, interval=100, debug=False):
+  def __init__(self, title, beginning, end=0, interval=100, debug=False,
+          save=True, output_path='.', formats=['pdf']):
     self.__fig = plt.figure(); self.__fig.set_figwidth(15)
     self.__ax = plt.gca()
     self.__beginning = beginning
@@ -61,6 +65,10 @@ class HistoryPlotter(object):
     self.__y_counter = 0
     self.__figname = title
     self.__debug = debug
+
+    # Saving options
+    SaveOpts = namedtuple("SaveOpts", ["enabled", "output_path", "formats"])
+    self.__save = SaveOpts(save, os.path.expanduser(output_path), formats)
 
     # Title
     self.__ax.set_title(title, fontsize=16, va='bottom', pad=25)
@@ -244,8 +252,16 @@ class HistoryPlotter(object):
     HistoryPlotter.__group_map = {}
 
   def save(self):
-    self.__fig.savefig(self.__figname + '.pdf')
-    self.__fig.savefig(self.__figname + '.png')
+    if self.__save.enabled:
+      # Make sure output folder exists, otherwise create it
+      os.makedirs(self.__save.output_path, exist_ok=True)
+
+      # Save the figure in all specified formats
+      for fmt in self.__save.formats:
+        if fmt in ['pdf', 'png', 'jpg']:
+          self.__fig.savefig(self.__save.output_path + '/' + self.__figname + '.' + fmt)
+        else:
+          logging.error('Invalid format \'%s\'. Supported formats are: \'pdf\', \'png\', \'jpg\'' % fmt)
 
   def show(self):
     self.resize()
