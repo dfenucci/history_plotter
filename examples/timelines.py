@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.abspath('./'))
 from history_plot.date_utils import start, end
 from history_plot.history_plot import HistoryPlotter
 
